@@ -1,32 +1,41 @@
-# run_meet.py
+import threading
+import time
+import signal
+import os   # ← added
 
-import threading, time
 from asr_stream import start_audio_stream, transcribe_loop
 from summarizer import update_summary
 
 def on_asr(text):
-    print("📝 ASR chunk:", text)     # debug/logging
-    update_summary(text)             # push into Obsidian note
+    print("📝 ASR chunk:", text)
+    update_summary(text)
+
+def shutdown(signum, frame):
+    print("\n🛑 Shutting down…")
+    try:
+        stream.stop()
+    except Exception:
+        pass
+    os._exit(0)   # HARD KILL: no mercy
 
 if __name__ == "__main__":
-    # 1) Start capturing
+    # Catch Ctrl+C and kill signals
+    signal.signal(signal.SIGINT,  shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+
+    # 1) Start audio
     stream = start_audio_stream()
     print("✅ Audio stream started.")
 
-    # 2) Spin up the transcriber
-    t = threading.Thread(target=transcribe_loop, args=(on_asr,), daemon=True)
+    # 2) Launch transcription thread
+    t = threading.Thread(
+        target=transcribe_loop,
+        args=(on_asr,),
+        daemon=True
+    )
     t.start()
     print("✅ Transcription thread started.")
 
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n🛑 Shutting down...")
-        stream.stop()    # if you want to cleanly stop PortAudio
-        # optionally join the thread here
-        exit(0)
-
-    # 3) Keep main alive
+    # 3) Hang out until we’re zapped
     while True:
         time.sleep(1)
