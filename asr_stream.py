@@ -1,18 +1,16 @@
-# asr_stream.py
-
 import whisper
 import sounddevice as sd
 import numpy as np
 from queue import Queue
 
 # ─── CONFIG ─────────────────────────────────────────────────
-sd.default.device = 3     # ← MacBook Pro Mic
+sd.default.device = 1     # ← MacBook Pro Mic
 _SAMPLE_RATE = 16000
 _BUFFER_SEC  = 5          # chunk length
 # ────────────────────────────────────────────────────────────
 
 q = Queue()
-model = whisper.load_model("base")  # you’re on CPU now
+model = whisper.load_model("small")  # you’re on CPU now
 
 def start_audio_stream():
     """Begin capturing mic audio and stuffing it into q."""
