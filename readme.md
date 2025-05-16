@@ -58,7 +58,7 @@ A real‑time in‑room meeting summarizer that listens to your MacBook Pro micr
 
 ## 🎙️ Finding & Setting Your Audio Device
 
-By default, the script uses `sd.default.device = 3`, which on a MacBook Pro is usually the built‑in mic. To discover your system’s device index:
+Get the index for your mic. To discover your system’s device index:
 
 ```bash
 python - <<EOF
